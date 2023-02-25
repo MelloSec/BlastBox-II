@@ -109,3 +109,6 @@ elseif ($Destroy) {
     $resourceGroupName = -join("$VMName","-RG")
     az group delete -n $resourceGroupName --force-deletion-types Microsoft.Compute/virtualMachines
 }
+
+Write-Output "Your VM's connection information is:"
+Write-Output $vm
