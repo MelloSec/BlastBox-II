@@ -23,18 +23,23 @@ Open powershell.exe, navigate to the folder and run:
 
 ```
 Windows 10:
+
 Set-ExecutionPolicy Bypass .\BlastBox2023.ps1 -image windows10 -username Radmin -deploy
 
 With Custom Password:
+
 Set-ExecutionPolicy Bypass .\BlastBox2023.ps1 -image windows10 -username Radmin -password Sup3rS3cur3 
 
 Server 2022:
+
 Set-ExecutionPolicy Bypass .\BlastBox2023.ps1 -image server2022 -username Radmin 
 
 With Custom Password:
+
 Set-ExecutionPolicy Bypass .\BlastBox2023.ps1 -image server2022 -username Radmin -password Sup3rS3cur3
 
 Destroy the RG and VM:
+
 Set-ExecutionPolicy Bypass .\BlastBox2023.ps1 -Destroy
 
 ```
