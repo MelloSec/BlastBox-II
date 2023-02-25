@@ -100,32 +100,33 @@ if ($Deploy) {
     "Homeward-Bound" -SecurityRules $rule1,$rule2,$rule3,$rule4,$rule5,$rule6,$rule7
 
     # Create VNET
-function Create-Networking {
-    az network vnet create --name $VNETName --resource-group $resourceGroupName --subnet-name $VMName
-} 
-Create-Networking
+    function Create-Networking {
+        az network vnet create --name $VNETName --resource-group $resourceGroupName --subnet-name $VMName
+    } 
+    Create-Networking
 
-$VNet = Get-AzVirtualNetwork -Name $VNETName
-$subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet | Select-Object Name,AddressPrefix
-$VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $VMName
+    $VNet = Get-AzVirtualNetwork -Name $VNETName
+    $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet | Select-Object Name,AddressPrefix
+    $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $VMName
 
-# Apply NSG to Subnet
-Set-AzVirtualNetworkSubnetConfig -Name $VNetSubnet.Name -VirtualNetwork $VNet -AddressPrefix $VNetSubnet.AddressPrefix -NetworkSecurityGroup $nsg
+    # Apply NSG to Subnet
+    Set-AzVirtualNetworkSubnetConfig -Name $VNetSubnet.Name -VirtualNetwork $VNet -AddressPrefix $VNetSubnet.AddressPrefix -NetworkSecurityGroup $nsg
 
-# Update the VNET
-$VNet | Set-AzVirtualNetwork
+    # Update the VNET
+    $VNet | Set-AzVirtualNetwork
 
-# Create VM
-function Create-VM {
-    az vm create --name $VMName --resource-group $resourceGroupName --image $image --generate-ssh-keys --admin-username $user --admin-password $soundssketchy --vnet-name $VNETName --subnet $VMName --public-ip-sku Standard
-}
-$vm = Create-VM 
+    # Create VM
+    function Create-VM {
+        az vm create --name $VMName --resource-group $resourceGroupName --image $image --generate-ssh-keys --admin-username $user --admin-password $soundssketchy --vnet-name $VNETName --subnet $VMName --public-ip-sku Standard
+    }
+    $vm = Create-VM 
+
 }
 elseif ($Destroy) {
     $resourceGroupName = -join("$VMName","-RG")
     az group delete -n $resourceGroupName --force-deletion-types Microsoft.Compute/virtualMachines
 }
 
-Write-Output "Your VM's connection information is:"
+Write-Output "Your VM's connection information:"
 Write-Output $vm
 
