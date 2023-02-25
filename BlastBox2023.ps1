@@ -85,7 +85,7 @@ if ($Deploy) {
     -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "*"
 
     $rule5 = New-AzNetworkSecurityRuleConfig -Name WinRM -Description "Allow incoming WinRM traffic" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 500 -SourceAddressPrefix $myip `
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 304 -SourceAddressPrefix $myip `
     -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange 5985, 5986
 
     $rule6 = New-AzNetworkSecurityRuleConfig -Name tcp-deny-all -Description "Deny all inbound TCP traffic" `
