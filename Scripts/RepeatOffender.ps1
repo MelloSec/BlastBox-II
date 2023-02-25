@@ -1,5 +1,4 @@
 
-
 # GitHub
 Invoke-WebRequest -Uri https://github.com/dnSpy/dnSpy/releases/latest/download/dnSpy-netframework.zip -OutFile "$env:TEMP\dnSpy-netframework.zip"
 Expand-Archive -Path "$env:TEMP\dnSpy-netframework.zip" -DestinationPath C:\tools\dnSpy
@@ -109,6 +108,7 @@ choco install openvpn -y
 choco install powertoys -y
 
 # Install Visual Studio and Dev tooling
+choco install sysinternals --params "/InstallDir:C:\tools\sysinternals"
 choco install visualstudio2019community -y
 choco install dotnet-sdk --version=5.0.100 -y
 choco install dotnet-sdk -y
