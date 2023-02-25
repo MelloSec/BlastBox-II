@@ -36,6 +36,7 @@ choco install vscode
 Invoke-WebRequest -Uri https://github.com/dnSpy/dnSpy/releases/latest/download/dnSpy-netframework.zip -OutFile "$env:TEMP\dnSpy-netframework.zip"
 Expand-Archive -Path "$env:TEMP\dnSpy-netframework.zip" -DestinationPath C:\tools\dnSpy
 
+# Need to refresh or reload here
 git clone https://github.com/BloodHoundAD/SharpHound3.git C:\tools\SharpHound3
 git clone https://github.com/dafthack/MailSniper.git C:\tools\MailSniper
 git clone https://github.com/decoder-it/juicy-potato.git C:\tools\juicy-potato
