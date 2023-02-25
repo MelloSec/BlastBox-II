@@ -1,7 +1,5 @@
 # BlastBox II
 
-I really learned a lot since I wrote the original and it shows. Here's a better one for 2023, theme of the year!
-
 Provide a Name, image, admin username (and optionally password) and whether to -deploy or -destroy.
 
 Resource Group is created from the name, as well as the VNET, subnet and NSG.
