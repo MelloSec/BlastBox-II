@@ -108,7 +108,7 @@ choco install openvpn -y
 choco install powertoys -y
 
 # Install Visual Studio and Dev tooling
-choco install sysinternals --params "/InstallDir:C:\tools\sysinternals"
+# choco install sysinternals --params "/InstallDir:C:\tools\sysinternals"
 choco install visualstudio2019community -y
 choco install dotnet-sdk --version=5.0.100 -y
 choco install dotnet-sdk -y
