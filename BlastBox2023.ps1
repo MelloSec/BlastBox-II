@@ -27,7 +27,7 @@ $VNETName = -join("$VMName","-VNET")
 $pubName = -join("$VMName","-IP")
 $nsgName = -join("$VMName","-NSG")
 $subnetName = -join("$VMName","-Subnet")
-$soundssketchy = $VMName+33892023
+$soundssketchy = $VMName+33892023!
 $user = "mellonaut"
 $win10image = "MicrosoftWindowsDesktop:Windows-10:21h1-ent:latest"
 $server22 = 'Win2022Datacenter'
@@ -73,15 +73,31 @@ if ($Deploy) {
     $myip.ToString() -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 3389
     
     $rule2 = New-AzNetworkSecurityRuleConfig -Name web-rule -Description "Allow HTTP" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 400 -SourceAddressPrefix `
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 301 -SourceAddressPrefix `
     $myip.ToString() -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 80, 443
     
     $rule3 = New-AzNetworkSecurityRuleConfig -Name smb-rule -Description "Allow SMB" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 301 -SourceAddressPrefix `
-    $myip -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 445
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 302 -SourceAddressPrefix `
+    $myip -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 139, 445
+
+    $rule4 = New-AzNetworkSecurityRuleConfig -Name udp-allow-all -Description "Allow all inbound UDP traffic from $myip" `
+    -Access Allow -Protocol Udp -Direction Inbound -Priority 303 -SourceAddressPrefix $myip `
+    -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "*"
+
+    $rule5 = New-AzNetworkSecurityRuleConfig -Name WinRM -Description "Allow incoming WinRM traffic" `
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 500 -SourceAddressPrefix $myip `
+    -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange 5985, 5986
+
+    $rule6 = New-AzNetworkSecurityRuleConfig -Name tcp-deny-all -Description "Deny all inbound TCP traffic" `
+    -Access Deny -Protocol Tcp -Direction Inbound -Priority 401 -SourceAddressPrefix "*" `
+    -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "*"
+
+    $rule7 = New-AzNetworkSecurityRuleConfig -Name udp-deny-all -Description "Deny all inbound UDP traffic" `
+    -Access Deny -Protocol Udp -Direction Inbound -Priority 402 -SourceAddressPrefix "*" `
+    -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "*"
     
     $nsg = New-AzNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Location $location -Name `
-    "Homeward-Bound" -SecurityRules $rule1,$rule2,$rule3
+    "Homeward-Bound" -SecurityRules $rule1,$rule2,$rule3,$rule4,$rule5,$rule6,$rule7
 
     # Create VNET
 function Create-Networking {
@@ -112,3 +128,4 @@ elseif ($Destroy) {
 
 Write-Output "Your VM's connection information is:"
 Write-Output $vm
+
