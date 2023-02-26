@@ -33,5 +33,5 @@ choco install tabby
 choco install firefox
 choco install putty
 choco install vscode
-# choco install sysinternals --params "/InstallDir:C:\tools\sysinternals"
+choco install sysinternals --params "/InstallDir:C:\tools\sysinternals"
 powershell -ep bypass ./RepeatOffender.ps1

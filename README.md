@@ -40,7 +40,10 @@ Set-ExecutionPolicy Bypass .\BlastBox2023.ps1 -vmname VMServer2022 -server2022 -
 
 Specify the VM to Destroy, it will force delete the ResourceGroup as well:
 
-Set-ExecutionPolicy Bypass .\BlastBox2023.ps1 -VMname VMWin10 -Destroy
-Set-ExecutionPolicy Bypass .\BlastBox2023.ps1 -VMname VMServer2022 -Destroy
+Set-ExecutionPolicy Bypass 
+.\BlastBox2023.ps1 -username mellonaut -windows10 -VMName VMWin10 -destroy
+
+Set-ExecutionPolicy Bypass 
+.\BlastBox2023.ps1 -username mellonaut -server2022 -VMName VMServer2022 -destroy
 
 ```
