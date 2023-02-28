@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)]
-    [string]$VMName,
+    # [Parameter(Mandatory)]
+    # [string]$VMName,
     # [Parameter(Mandatory)]
     # [string]$Username,
     # [Parameter(Mandatory)]
@@ -21,22 +21,20 @@ param(
 )
 
 
-
+$VMName = Read-Host "Enter a name for the VM and its resources"
 $Username = Read-Host "Enter a username for VM"
 $Password = Read-Host "Enter a Password for VM" -AsSecureString
-$subscription = Get-AzSubscription
-$tenant = Get-AzTenant
-$tenantName = "Sludge"
 $resourceGroupName = -join("$VMName","-RG")
 $myip = Invoke-WebRequest 'http://ifconfig.me/ip' -UseBasicParsing
 $myip = $myip.Content
-
 $VNETName = -join("$VMName","-VNET")
+
+
 $pubName = -join("$VMName","-IP")
 $nsgName = -join("$VMName","-NSG")
 $subnetName = -join("$VMName","-Subnet")
-$soundssketchy = $VMName+33892023
-$user = "mellonaut"
+
+
 $win10image = "MicrosoftWindowsDesktop:Windows-10:21h1-ent:latest"
 $server22 = 'Win2022Datacenter'
 # if args contain either server or win10, image becomes that variable
@@ -53,9 +51,20 @@ else {
 
 # Get connected to Azure
 function Set-Context {
-    if(!( -Name Azure)) { Install-Module Az }
+    Write-Output "Az is incompatible with the discontinued AzureRM module."
+    Write-Output "If installed, AzureRM will be removed."
+    Uninstall-AzureRm 
+
+    if(!( Get-InstalledModule -Name Az)) { Write-Output "Az module not found, please wait while it is installed..."; Install-Module Az }
+    Write-Output  "Az module found. Importing to session."
     Import-Module Az
+    Write-Output "Checking if you are authenticated with Azure..." 
+    Write-Output "If you are prompted to sign in, please continue using credentials with correct permissions."
     if(!(get-azcontext)){ Connect-AzAccount }
+    $sub = Get-AzSubscription 
+    $tenant = Get-AzTenant
+
+    Write-Output "You are now signed in to $tenant $sub"  
 }
 Set-Context
 
@@ -69,8 +78,10 @@ if ($Deploy) {
             [Parameter(Mandatory)]
             [String]$location
         )
+        Write-Output "Checking if Resource Group exists with that name."
         if(!(Get-AzResourceGroup -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue))
         {
+          Write-Output "Creating new Resource Group $resourceGroupName"  
           New-AzResourceGroup -name $resourceGroupName -location $location
         }
     }
@@ -100,7 +111,7 @@ if ($Deploy) {
     -SourceAddressPrefix $myip.ToString() -SourcePortRange * `
     -DestinationAddressPrefix * -DestinationPortRange *
 
-    $rule4 = New-AzNetworkSecurityRuleConfig -Name udp-allow-all -Description "Allow all inbound UDP traffic from $myip" `
+    $rule4 = New-AzNetworkSecurityRuleConfig -Name allow-myip-udp -Description "Allow all inbound UDP traffic from $myip" `
     -Access Allow -Protocol Udp -Direction Inbound -Priority 300 -SourceAddressPrefix $myip `
     -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "*"
 
@@ -113,39 +124,66 @@ if ($Deploy) {
     $rule7 = New-AzNetworkSecurityRuleConfig -Name udp-deny-all -Description "Deny all inbound UDP traffic" `
     -Access Deny -Protocol Udp -Direction Inbound -Priority 402 -SourceAddressPrefix "*" `
     -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "*"
-
+    
+    Write-Output "Creating Network Security Group"
     $nsg = New-AzNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Location $location -Name `
-    "Homeward-Bound" -SecurityRules $rule0,$rule4,$rule6,$rule7
+    $nsgName -SecurityRules $rule0,$rule4,$rule6,$rule7
+
+    # $subnet = New-AzVirtualNetworkSubnetConfig `
+    #  -Name $subnetName `
+    #  -AddressPrefix "10.0.1.0/24"
 
     # Create VNET
     function Create-Networking {
-        az network vnet create --name $VNETName --resource-group $resourceGroupName --subnet-name $VMName
+        Write-Output "Creating Virtual network $VNETName and VM subnet $subnetName"
+        
+    # Create a PSSubnet object
+    $subnet = New-AzVirtualNetworkSubnetConfig `
+    -Name $subnetName `
+    -AddressPrefix "10.0.1.0/24"
+
+    # Create the virtual network and subnet
+    New-AzVirtualNetwork `
+        -Name $VNETName `
+        -ResourceGroupName $resourceGroupName `
+        -Location "EastUS" `
+        -AddressPrefix "10.0.0.0/16" `
+        -Subnet $subnet `
+        -Verbose
     }
     Create-Networking
 
     $VNet = Get-AzVirtualNetwork -Name $VNETName
     $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet | Select-Object Name,AddressPrefix
-    $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $VMName
+    $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNETName -Name $subnetName
 
     # Apply NSG to Subnet
+    Write-Output "Applying NSG to Subnet"
     Set-AzVirtualNetworkSubnetConfig -Name $VNetSubnet.Name -VirtualNetwork $VNet -AddressPrefix $VNetSubnet.AddressPrefix -NetworkSecurityGroup $nsg
 
+
     # Update the VNET
+    Write-Output "Updating Virtual Network with config"
     $VNet | Set-AzVirtualNetwork
 
 
     # Convert password into string for the command
     $passwordPlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
     # Create VM
-    function Create-VM {
-        az vm create --name $VMName --resource-group $resourceGroupName --image $image --generate-ssh-keys --admin-username $user --admin-password $passwordPlainText --vnet-name $VNETName --subnet $VMName --public-ip-sku Standard
+    function Deploy-VM {
+
+        # Create the virtual machine
+             New-AzVM `
+            -ResourceGroupName $resourceGroupName -Name $VMName -Image $image `
+            -GenerateSshKeys -Credential (New-Object System.Management.Automation.PSCredential($Username, $Password)) `
+            -VnetName $VNETName -SubnetName $VMName -PublicIpAddressName $pubName -PublicIpAllocationMethod Dynamic -PublicIpSku Standard
     }
-    $vm = Create-VM
+    $vm = Deploy-VM
 
 }
 elseif ($Destroy) {
     $resourceGroupName = -join("$VMName","-RG")
-    az group delete -n $resourceGroupName --force-deletion-types Microsoft.Compute/virtualMachines
+    Remove-AzResourceGroup -Name $resourceGroupName
 }
 
 Write-Output "Your VM's connection information:"
