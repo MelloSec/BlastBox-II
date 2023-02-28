@@ -88,12 +88,12 @@ Install-Module -Name AADInternals -Force
 Install-Module -Name Microsoft.Graph -Scope AllUsers -Force
 
 # Import and connect to the modules
-Import-Module Az
-Import-Module AzureAD
-Import-Module MSOnline
-Import-Module ExchangeOnlineManagement
-Import-Module AADInternals
-Import-Module Microsoft.Graph
+# Import-Module Az
+# Import-Module AzureAD
+# Import-Module MSOnline
+# Import-Module ExchangeOnlineManagement
+# Import-Module AADInternals
+# Import-Module Microsoft.Graph
 
 
 # Install Software

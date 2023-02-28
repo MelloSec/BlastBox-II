@@ -2,8 +2,10 @@
 param(
     [Parameter(Mandatory)]
     [string]$VMName,
-    [Parameter(Mandatory)]
-    [string]$Username,
+    # [Parameter(Mandatory)]
+    # [string]$Username,
+    # [Parameter(Mandatory)]
+    # [string]$Password,
     [Parameter()]
     [string]$Image,
     [Parameter()]
@@ -18,11 +20,17 @@ param(
     [switch]$Destroy
 )
 
+
+
+$Username = Read-Host "Enter a username for VM"
+$Password = Read-Host "Enter a Password for VM" -AsSecureString
 $subscription = Get-AzSubscription
 $tenant = Get-AzTenant
 $tenantName = "Sludge"
 $resourceGroupName = -join("$VMName","-RG")
-$myip = curl 'http://ifconfig.me/ip'
+$myip = Invoke-WebRequest 'http://ifconfig.me/ip' -UseBasicParsing
+$myip = $myip.Content
+
 $VNETName = -join("$VMName","-VNET")
 $pubName = -join("$VMName","-IP")
 $nsgName = -join("$VMName","-NSG")
@@ -45,8 +53,9 @@ else {
 
 # Get connected to Azure
 function Set-Context {
-    if(!(Get-Module -ListAvailable -Name Azure)) { Install-Module Az; Import-Module Az }
-    if(!(get-azcontext)){ Connect-AzAccount } 
+    if(!( -Name Azure)) { Install-Module Az }
+    Import-Module Az
+    if(!(get-azcontext)){ Connect-AzAccount }
 }
 Set-Context
 
@@ -61,32 +70,41 @@ if ($Deploy) {
             [String]$location
         )
         if(!(Get-AzResourceGroup -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue))
-        { 
-          New-AzResourceGroup -name $resourceGroupName -location $location 
+        {
+          New-AzResourceGroup -name $resourceGroupName -location $location
         }
     }
     $rg = Create-RG $resourceGroupName $location
-    
+
     # Create Rules and NSG
-    $rule1 = New-AzNetworkSecurityRuleConfig -Name rdp-rule -Description "Allow RDP" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 300 -SourceAddressPrefix `
-    $myip.ToString() -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 3389
-    
-    $rule2 = New-AzNetworkSecurityRuleConfig -Name web-rule -Description "Allow HTTP" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 301 -SourceAddressPrefix `
-    $myip.ToString() -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 80, 443
-    
-    $rule3 = New-AzNetworkSecurityRuleConfig -Name smb-rule -Description "Allow SMB" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 302 -SourceAddressPrefix `
-    $myip -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 139, 445
+
+    # Allow Rules
+    # $rule1 = New-AzNetworkSecurityRuleConfig -Name rdp-rule -Description "Allow RDP" `
+    # -Access Allow -Protocol Tcp -Direction Inbound -Priority 300 -SourceAddressPrefix `
+    # $myip.ToString() -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 3389
+
+    # $rule2 = New-AzNetworkSecurityRuleConfig -Name web-rule -Description "Allow HTTP" `
+    # -Access Allow -Protocol Tcp -Direction Inbound -Priority 301 -SourceAddressPrefix `
+    # $myip.ToString() -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 80, 443
+
+    # $rule3 = New-AzNetworkSecurityRuleConfig -Name smb-rule -Description "Allow SMB" `
+    # -Access Allow -Protocol Tcp -Direction Inbound -Priority 302 -SourceAddressPrefix `
+    # $myip -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 139, 445
+
+        # $rule5 = New-AzNetworkSecurityRuleConfig -Name WinRM -Description "Allow incoming WinRM traffic" `
+    # -Access Allow -Protocol Tcp -Direction Inbound -Priority 304 -SourceAddressPrefix $myip `
+    # -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange 5985, 5986
+
+    $rule0 = New-AzNetworkSecurityRuleConfig -Name allow-myip-tcp -Description "Allow all inbound TCP traffic from $myIP" `
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 200 `
+    -SourceAddressPrefix $myip.ToString() -SourcePortRange * `
+    -DestinationAddressPrefix * -DestinationPortRange *
 
     $rule4 = New-AzNetworkSecurityRuleConfig -Name udp-allow-all -Description "Allow all inbound UDP traffic from $myip" `
-    -Access Allow -Protocol Udp -Direction Inbound -Priority 303 -SourceAddressPrefix $myip `
+    -Access Allow -Protocol Udp -Direction Inbound -Priority 300 -SourceAddressPrefix $myip `
     -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "*"
 
-    $rule5 = New-AzNetworkSecurityRuleConfig -Name WinRM -Description "Allow incoming WinRM traffic" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 304 -SourceAddressPrefix $myip `
-    -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange 5985, 5986
+    # Deny Rules
 
     $rule6 = New-AzNetworkSecurityRuleConfig -Name tcp-deny-all -Description "Deny all inbound TCP traffic" `
     -Access Deny -Protocol Tcp -Direction Inbound -Priority 401 -SourceAddressPrefix "*" `
@@ -95,14 +113,14 @@ if ($Deploy) {
     $rule7 = New-AzNetworkSecurityRuleConfig -Name udp-deny-all -Description "Deny all inbound UDP traffic" `
     -Access Deny -Protocol Udp -Direction Inbound -Priority 402 -SourceAddressPrefix "*" `
     -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "*"
-    
+
     $nsg = New-AzNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Location $location -Name `
-    "Homeward-Bound" -SecurityRules $rule1,$rule2,$rule3,$rule4,$rule5,$rule6,$rule7
+    "Homeward-Bound" -SecurityRules $rule0,$rule4,$rule6,$rule7
 
     # Create VNET
     function Create-Networking {
         az network vnet create --name $VNETName --resource-group $resourceGroupName --subnet-name $VMName
-    } 
+    }
     Create-Networking
 
     $VNet = Get-AzVirtualNetwork -Name $VNETName
@@ -115,11 +133,14 @@ if ($Deploy) {
     # Update the VNET
     $VNet | Set-AzVirtualNetwork
 
+
+    # Convert password into string for the command
+    $passwordPlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
     # Create VM
     function Create-VM {
-        az vm create --name $VMName --resource-group $resourceGroupName --image $image --generate-ssh-keys --admin-username $user --admin-password $soundssketchy --vnet-name $VNETName --subnet $VMName --public-ip-sku Standard
+        az vm create --name $VMName --resource-group $resourceGroupName --image $image --generate-ssh-keys --admin-username $user --admin-password $passwordPlainText --vnet-name $VNETName --subnet $VMName --public-ip-sku Standard
     }
-    $vm = Create-VM 
+    $vm = Create-VM
 
 }
 elseif ($Destroy) {
@@ -129,4 +150,3 @@ elseif ($Destroy) {
 
 Write-Output "Your VM's connection information:"
 Write-Output $vm
-
