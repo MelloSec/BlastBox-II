@@ -24,8 +24,8 @@ $resourceGroupName = -join("$VMName","-RG")
 $myip = Invoke-WebRequest 'http://ifconfig.me/ip' -UseBasicParsing
 $myip = $myip.Content
 $VNETName = -join("$VMName","-VNET")
-$Username = Read-Host "Enter admin username for VM"
-$Password = Read-Host "Enter password for VM" -AsSecureString
+# $Username = Read-Host "Enter admin username for VM"
+# $Password = Read-Host "Enter password for VM" -AsSecureString
 
 
 $pubName = -join("$VMName","-IP")
