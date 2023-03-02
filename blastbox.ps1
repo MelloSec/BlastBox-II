@@ -190,7 +190,7 @@ if ($Deploy) {
              New-AzVM `
             -ResourceGroupName $resourceGroupName -Name $VMName -Image $image `
             -Credential (New-Object System.Management.Automation.PSCredential($Username, $Password)) `
-            -VirtualNetworkName $VNETName -SubnetName $VMName -PublicIpAddressName $pubName -PublicIpSku Standard `
+            -VirtualNetworkName $VNETName -SubnetName $VMName -PublicIpAddressName $pubName `
             -NetworkInterfaceDeleteOption Delete
     }
     $vm = Deploy-VM
