@@ -1,11 +1,5 @@
 [CmdletBinding()]
 param(
-    # [Parameter(Mandatory)]
-    # [string]$VMName,
-    # [Parameter(Mandatory)]
-    # [string]$Username,
-    # [Parameter(Mandatory)]
-    # [string]$Password,
     [Parameter()]
     [string]$Image,
     [Parameter()]
@@ -22,8 +16,8 @@ param(
 
 
 $VMName = Read-Host "Enter a name for the VM and its resources"
-$Username = Read-Host "Enter a username for VM"
-$Password = Read-Host "Enter a Password for VM" -AsSecureString
+# $Username = Read-Host "Enter a username for VM"
+# $Password = Read-Host "Enter a Password for VM" -AsSecureString
 $resourceGroupName = -join("$VMName","-RG")
 $myip = Invoke-WebRequest 'http://ifconfig.me/ip' -UseBasicParsing
 $myip = $myip.Content
@@ -64,7 +58,7 @@ function Set-Context {
     $sub = Get-AzSubscription 
     $tenant = Get-AzTenant
 
-    Write-Output "You are now signed in to $tenant $sub"  
+    Write-Output "You are now signed in to $tenant"  
 }
 Set-Context
 
@@ -129,32 +123,54 @@ if ($Deploy) {
     $nsg = New-AzNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Location $location -Name `
     $nsgName -SecurityRules $rule0,$rule4,$rule6,$rule7
 
-    # $subnet = New-AzVirtualNetworkSubnetConfig `
-    #  -Name $subnetName `
-    #  -AddressPrefix "10.0.1.0/24"
 
     # Create VNET
     function Create-Networking {
         Write-Output "Creating Virtual network $VNETName and VM subnet $subnetName"
         
-    # Create a PSSubnet object
-    $subnet = New-AzVirtualNetworkSubnetConfig `
-    -Name $subnetName `
-    -AddressPrefix "10.0.1.0/24"
-
-    # Create the virtual network and subnet
-    New-AzVirtualNetwork `
-        -Name $VNETName `
-        -ResourceGroupName $resourceGroupName `
-        -Location "EastUS" `
-        -AddressPrefix "10.0.0.0/16" `
-        -Subnet $subnet `
-        -Verbose
+        # Create a PSSubnet object
+        $subnet = New-AzVirtualNetworkSubnetConfig `
+            -Name $subnetName `
+            -AddressPrefix "10.0.1.0/24"
+    
+        # Create the virtual network and subnet
+        $Vnet = New-AzVirtualNetwork `
+            -Name $VNETName `
+            -ResourceGroupName $resourceGroupName `
+            -Location "EastUS" `
+            -AddressPrefix "10.0.0.0/16" `
+            -Subnet $subnet `
+            -Verbose
+        
+        # Return the virtual network object
+        return $Vnet
     }
-    Create-Networking
+    function Destroy-Networking {
+        # Remove NSG
+        Write-Output "Removing NSG..."
+        Remove-AzNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroupName -Force
+    
+        # Remove Public IP
+        Write-Output "Removing Public IP..."
+        Remove-AzPublicIpAddress -Name $pubName -ResourceGroupName $resourceGroupName -Force
+    
+        # Remove Subnet
+        Write-Output "Removing Subnet..."
+        Remove-AzVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $Vnet -Force
+    
+        # Remove Virtual Network
+        Write-Output "Removing Virtual Network..."
+        Remove-AzVirtualNetwork -Name $VNETName -ResourceGroupName $resourceGroupName -Force
+    }
+    
+    
+    # Create the virtual network and get the subnet configuration
+    $VNet = Create-Networking
+    $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $subnetName
+    $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $subnetName
 
     $VNet = Get-AzVirtualNetwork -Name $VNETName
-    $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet | Select-Object Name,AddressPrefix
+    $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $Vnet | Select-Object Name,AddressPrefix
     $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNETName -Name $subnetName
 
     # Apply NSG to Subnet
@@ -167,24 +183,26 @@ if ($Deploy) {
     $VNet | Set-AzVirtualNetwork
 
 
-    # Convert password into string for the command
-    $passwordPlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
+  
     # Create VM
     function Deploy-VM {
+
+        $Username = Read-Host "Enter admin username for VM"
+        $Password = Read-Host "Enter password for VM" -AsSecureString
 
         # Create the virtual machine
              New-AzVM `
             -ResourceGroupName $resourceGroupName -Name $VMName -Image $image `
-            -GenerateSshKeys -Credential (New-Object System.Management.Automation.PSCredential($Username, $Password)) `
+            -Credential (New-Object System.Management.Automation.PSCredential($Username, $Password)) `
             -VnetName $VNETName -SubnetName $VMName -PublicIpAddressName $pubName -PublicIpAllocationMethod Dynamic -PublicIpSku Standard
     }
     $vm = Deploy-VM
-
+    Write-Output "Your VM's connection information:"
+    Write-Output $vm
 }
 elseif ($Destroy) {
     $resourceGroupName = -join("$VMName","-RG")
+    Destroy-Networking
     Remove-AzResourceGroup -Name $resourceGroupName
 }
 
-Write-Output "Your VM's connection information:"
-Write-Output $vm
