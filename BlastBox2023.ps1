@@ -7,6 +7,8 @@ param(
     [Parameter()]
     [switch]$windows10,
     [Parameter()]
+    [switch]$windows11,
+    [Parameter()]
     [switch]$server2022,
     [Parameter()]
     [switch]$Deploy,
@@ -30,6 +32,8 @@ $subnetName = -join("$VMName","-Subnet")
 
 
 $win10image = "MicrosoftWindowsDesktop:Windows-10:21h1-ent:latest"
+$win11image = "MicrosoftWindowsDesktop:Windows-11:latest"
+# $win11image = "MicrosoftWindowsDesktop:Windows-11"
 $server22 = 'Win2022Datacenter'
 # if args contain either server or win10, image becomes that variable
 if ($server2022) {
@@ -37,6 +41,9 @@ if ($server2022) {
 }
 elseif ($windows10) {
     $image = $win10image
+}
+elseif ($windows11) {
+    $image = $win11image
 }
 else {
     Write-Error "Either -server2022 or -windows10 switch must be provided"
@@ -140,7 +147,7 @@ if ($Deploy) {
             -Location "EastUS" `
             -AddressPrefix "10.0.0.0/16" `
             -Subnet $subnet `
-            -Verbose
+            -Verbose -Force
     
         # Return the virtual network object
         return $Vnet
@@ -182,9 +189,13 @@ if ($Deploy) {
             -NetworkInterfaceDeleteOption Delete
     }
     $vm = Deploy-VM
-    Write-Output "Your VM's information:"
-    Write-Output "Connect to:" $vm.FullyQualifiedDomainName
-    Write-Output 
+    Write-Output "Your VM's information: $vm"
+    $publicIpAddress = Get-AzPublicIpAddress -Name $pubName -ResourceGroupName $resourceGroupName
+    $ip = $publicIpAddress.IpAddress.ToString()
+    $fqdn = $publicIpAddress.DnsSettings.Fqdn
+
+    mstsc.exe /v:$ip 
+    
 }
 
 elseif ($Destroy) {
@@ -209,7 +220,7 @@ elseif ($Destroy) {
     
         # Remove Subnet
         Write-Output "Removing Subnet..."
-        Remove-AzVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $VNet -Force
+        Remove-AzVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $VNet
     
         # Remove Virtual Network
         Write-Output "Removing Virtual Network..."
@@ -217,7 +228,7 @@ elseif ($Destroy) {
 
         # Remove NSG
         Write-Output "Removing NSG..."
-        Remove-AzNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroupName
+        Remove-AzNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroupName -Force
     }
 
     function Delete-VM
