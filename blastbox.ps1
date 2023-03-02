@@ -112,6 +112,8 @@ if ($Deploy) {
     # -Access Allow -Protocol Tcp -Direction Inbound -Priority 304 -SourceAddressPrefix $myip `
     # -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange 5985, 5986
 
+    Write-Output "Your current IP is $myip. Creating TCP/UDP Allow rules from that IP and denying everything else."
+    
     $rule0 = New-AzNetworkSecurityRuleConfig -Name allow-myip-tcp -Description "Allow all inbound TCP traffic from $myIP" `
     -Access Allow -Protocol Tcp -Direction Inbound -Priority 200 `
     -SourceAddressPrefix $myip.ToString() -SourcePortRange * `
@@ -194,10 +196,11 @@ if ($Deploy) {
             -NetworkInterfaceDeleteOption Delete
     }
     $vm = Deploy-VM
-    Write-Output "Your VM's information:"
+    
     $publicIpAddress = Get-AzPublicIpAddress -Name $pubName -ResourceGroupName $resourceGroupName
     $ip = $publicIpAddress.IpAddress.ToString()
     $fqdn = $publicIpAddress.DnsSettings.Fqdn
+    Write-Output "Your VM's connection information: $ip $fqdn"
 
     mstsc.exe /public /admin /v:$ip 
     
