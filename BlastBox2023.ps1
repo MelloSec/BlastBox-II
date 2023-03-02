@@ -161,7 +161,7 @@ if ($Deploy) {
     $VNet = Get-AzVirtualNetwork -Name $VNETName
     $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $subnetName
     $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $subnetName
-    $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $Vnet | Select-Object Name,AddressPrefix
+    $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet | Select-Object Name,AddressPrefix
     $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $subnetName
 
     # Apply NSG to Subnet
