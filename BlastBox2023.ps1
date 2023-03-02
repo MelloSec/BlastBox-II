@@ -141,37 +141,21 @@ if ($Deploy) {
             -AddressPrefix "10.0.0.0/16" `
             -Subnet $subnet `
             -Verbose
-        
+    
         # Return the virtual network object
         return $Vnet
     }
-    function Destroy-Networking {
-        # Remove NSG
-        Write-Output "Removing NSG..."
-        Remove-AzNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroupName -Force
     
-        # Remove Public IP
-        Write-Output "Removing Public IP..."
-        Remove-AzPublicIpAddress -Name $pubName -ResourceGroupName $resourceGroupName -Force
-    
-        # Remove Subnet
-        Write-Output "Removing Subnet..."
-        Remove-AzVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $Vnet -Force
-    
-        # Remove Virtual Network
-        Write-Output "Removing Virtual Network..."
-        Remove-AzVirtualNetwork -Name $VNETName -ResourceGroupName $resourceGroupName -Force
-    }
-    
+    # Call the function and store the returned object in a variable
+    $VNet = Create-Networking
     
     # Create the virtual network and get the subnet configuration
     $VNet = Create-Networking
+    $VNet = Get-AzVirtualNetwork -Name $VNETName
     $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $subnetName
     $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $subnetName
-
-    $VNet = Get-AzVirtualNetwork -Name $VNETName
     $subnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $Vnet | Select-Object Name,AddressPrefix
-    $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNETName -Name $subnetName
+    $VNetSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork $VNet -Name $subnetName
 
     # Apply NSG to Subnet
     Write-Output "Applying NSG to Subnet"
@@ -194,15 +178,65 @@ if ($Deploy) {
              New-AzVM `
             -ResourceGroupName $resourceGroupName -Name $VMName -Image $image `
             -Credential (New-Object System.Management.Automation.PSCredential($Username, $Password)) `
-            -VnetName $VNETName -SubnetName $VMName -PublicIpAddressName $pubName -PublicIpAllocationMethod Dynamic -PublicIpSku Standard
+            -VirtualNetworkName $VNETName -SubnetName $VMName -PublicIpAddressName $pubName -PublicIpSku Standard `
+            -NetworkInterfaceDeleteOption Delete
     }
     $vm = Deploy-VM
-    Write-Output "Your VM's connection information:"
-    Write-Output $vm
+    Write-Output "Your VM's information:"
+    Write-Output "Connect to:" $vm.FullyQualifiedDomainName
+    Write-Output 
 }
+
 elseif ($Destroy) {
     $resourceGroupName = -join("$VMName","-RG")
-    Destroy-Networking
-    Remove-AzResourceGroup -Name $resourceGroupName
+    $VNETName = -join("$VMName","-VNET")
+    $VNet = Get-AzVirtualNetwork -name $VNETName
+    $pubName = -join("$VMName","-IP")
+    $nsgName = -join("$VMName","-NSG")
+    $subnetName = -join("$VMName","-Subnet")
+
+    function Destroy-Networking {
+        param (
+            [Parameter(Mandatory)]
+            [Microsoft.Azure.Commands.Network.Models.PSVirtualNetwork]$VNet
+        )
+    
+
+    
+        # Remove Public IP
+        Write-Output "Removing Public IP..."
+        Remove-AzPublicIpAddress -Name $pubName -ResourceGroupName $resourceGroupName -Force
+    
+        # Remove Subnet
+        Write-Output "Removing Subnet..."
+        Remove-AzVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $VNet -Force
+    
+        # Remove Virtual Network
+        Write-Output "Removing Virtual Network..."
+        Remove-AzVirtualNetwork -Name $VNETName -ResourceGroupName $resourceGroupName -Force
+
+        # Remove NSG
+        Write-Output "Removing NSG..."
+        Remove-AzNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroupName
+    }
+
+    function Delete-VM
+        {
+            $VM = Get-AzVM -Name $VMName -ResourceGroupName $resourceGroupName
+            Write-Output "VM found: $($VM.Name)"
+            Write-Output "Deallocating VM..."
+            $NIC = Get-AzNetworkInterface -ResourceId $VM.NetworkProfile.NetworkInterfaces[0].Id
+
+            # Stop and remove the VM
+            Stop-AzVM -Name $VMName -ResourceGroupName $resourceGroupName -Force
+            Remove-AzVM -Name $VMName -ResourceGroupName $resourceGroupName
+            
+            # Remove the NIC
+            Remove-AzNetworkInterface -Name $NIC.Name -ResourceGroupName $resourceGroupName -Force
+    }
+
+    Delete-VM
+    Destroy-Networking $VNet
+    Remove-AzResourceGroup -Name $resourceGroupName -Force
 }
 
