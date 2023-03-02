@@ -24,6 +24,8 @@ $resourceGroupName = -join("$VMName","-RG")
 $myip = Invoke-WebRequest 'http://ifconfig.me/ip' -UseBasicParsing
 $myip = $myip.Content
 $VNETName = -join("$VMName","-VNET")
+$Username = Read-Host "Enter admin username for VM"
+$Password = Read-Host "Enter password for VM" -AsSecureString
 
 
 $pubName = -join("$VMName","-IP")
@@ -71,6 +73,9 @@ Set-Context
 
 # Create or delete the resource group
 if ($Deploy) {
+
+    $Username = Read-Host "Enter admin username for VM"
+    $Password = Read-Host "Enter password for VM" -AsSecureString
     function Create-RG {
         [CmdletBinding()]
         Param(
@@ -178,8 +183,8 @@ if ($Deploy) {
     # Create VM
     function Deploy-VM {
 
-        $Username = Read-Host "Enter admin username for VM"
-        $Password = Read-Host "Enter password for VM" -AsSecureString
+        # $Username = Read-Host "Enter admin username for VM"
+        # $Password = Read-Host "Enter password for VM" -AsSecureString
 
         # Create the virtual machine
              New-AzVM `
@@ -194,7 +199,7 @@ if ($Deploy) {
     $ip = $publicIpAddress.IpAddress.ToString()
     $fqdn = $publicIpAddress.DnsSettings.Fqdn
 
-    mstsc.exe /v:$ip 
+    mstsc.exe /public /admin /v:$ip 
     
 }
 
