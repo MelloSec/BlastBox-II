@@ -194,7 +194,7 @@ if ($Deploy) {
             -NetworkInterfaceDeleteOption Delete
     }
     $vm = Deploy-VM
-    Write-Output "Your VM's information: $vm"
+    Write-Output "Your VM's information:"
     $publicIpAddress = Get-AzPublicIpAddress -Name $pubName -ResourceGroupName $resourceGroupName
     $ip = $publicIpAddress.IpAddress.ToString()
     $fqdn = $publicIpAddress.DnsSettings.Fqdn
