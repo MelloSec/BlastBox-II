@@ -11,7 +11,7 @@ If the Az powershell module isnt installed, it will be and will be imported.
 
 If not connected to azure, script will prompt you to sign in to whichever tenant you have rights to deploy on.
 
-Location can be changed by specifying "-location centralus" for example
+Deploys to "East US" Location by default. Can be changed by specifying "-location centralus", for example.
 
 Resource Group is created from the VMName, as well as the VNET, subnet and NSG.
 
