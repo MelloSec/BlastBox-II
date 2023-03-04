@@ -59,5 +59,5 @@ Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2022 -destroy
 
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows10 -destroy
 ```
-## NOTE: Running Destroy will deallocate the VM first, then ask if you want to delete, allowing you to save your progress and a few dollars on compute cost
+## NOTE: Running Destroy will deallocate the VM first, then ask if you want to delete, allowing you to pause and save a few dollars on compute cost if you aren't ready to delete yet.
 
