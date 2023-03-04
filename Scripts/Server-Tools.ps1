@@ -12,6 +12,7 @@ $DSRMPassword = 'Password123!'
 Write-Verbose "Installing AD DS feature..."
 
 Install-WindowsFeature -Name "AD-Domain-Services" -IncludeManagementTools
+Install-WindowsFeature -Name Web-Server -IncludeAllSubFeature -IncludeManagementTools
 
 
 Write-Verbose "Installing new forest: $Domain"
@@ -28,6 +29,7 @@ Set-TimeZone -Name "Eastern Standard Time" -Verbose
 
 Refreshenv
 
+choco install -y tabby
 choco install -y git
 choco install -y poshgit
 choco install sysinternals -y
