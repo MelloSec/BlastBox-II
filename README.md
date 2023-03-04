@@ -11,9 +11,12 @@ If the Az powershell module isnt installed, it will be and will be imported.
 
 If not connected to azure, script will prompt you to sign in to whichever tenant you have rights to deploy on.
 
+![image](https://user-images.githubusercontent.com/65114647/222898992-2d2bfdb3-8f5b-4946-b05d-207ea9a7ed02.png)
+
 It will ask you to specify a username and password for the admin user and will continue on from there:
 
-![image](https://user-images.githubusercontent.com/65114647/222897477-f8c35aa9-fbd0-4633-855c-bf645e259918.png)
+![image](https://user-images.githubusercontent.com/65114647/222898910-331457ac-3285-4586-a7a4-eb4e83aa72da.png)
+
 
 Deploys to "East US" Location by default. At this time "-location" can be specified on the command line but it wont find your network security group and the machine will not have the security rules applied.
 
