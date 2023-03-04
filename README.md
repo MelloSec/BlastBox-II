@@ -1,6 +1,6 @@
 # BlastBox II
 
-Provide a Name, -windows10 or -server2022, admin username (and optionally password) and whether to -deploy or -destroy.
+## Provide a Name, -windows10 or -server2022, admin username (and optionally password) and whether to -deploy or -destroy.
 
 If the legacy AzureRM module is installed, it will be removed as it cannot exist side-by-side with the new Az module.
 
@@ -10,7 +10,7 @@ If not connected to azure, script will prompt you to sign in to whichever tenant
 
 Resource Group is created from the VMName, as well as the VNET, subnet and NSG.
 
-Powershell retrieves and stores your current public IP in a variable and creates Network Security Group rule configurations to allow all TCP and UDP traffic from your IP only.
+Powershell retrieves your current public IP address and uses this to create allow rules for all TCP and UDP traffic
 
 NSG allow rules are applied at the subnet level.
 
