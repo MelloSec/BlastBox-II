@@ -47,17 +47,11 @@ Open powershell.exe, navigate to the folder and run:
 
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows10 -deploy
 
-# Specify alternate location
-
-Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows10 -deploy -location centralus
  
 # Server 2022:
 
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2022 -deploy
 
-# Specify alternate location
-
-Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2022 -deploy -location centralus
 ```
 
 ### Destroy
