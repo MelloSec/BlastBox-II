@@ -1,6 +1,6 @@
 # BlastBox II
 
-## Private test machines on the fly. Run scripts, click links and go nuts.
+## Private test machines on the fly. Run scripts, click links, go nuts.
 
 ### Overview
 Provide a Name, -windows10 or -server2022, admin username (and optionally password) and whether to -deploy or -destroy.
