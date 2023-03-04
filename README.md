@@ -30,7 +30,8 @@ Including are scripts to install the Log Analytics agent and the Microsoft Monit
 Server-Tools.ps1 should install a domain controller with IIS server, chocolatey, vscode, git and sysinternals
 
 RunMe.ps1 is just a convenience script that will download, extract and run the ChocoLoader and Repeat Offender scripts to install chocolatey and a bunch of security stuff.
-It contains Rasta Mouse Certified Red Team Operator course VM as the base, then installs malware development and analysis tools that I like to use from there. 
+
+Choco-Loader/RepeatOffender contains Rasta Mouse Certified Red Team Operator course VM as the base, then installs malware development and analysis tools that I like to use from there. 
 It's muy janky, it doesnt pick git up in path and you have to run the rest of that script again from a new console window. Will bew fixed in the future. 
 
 ## Usage
