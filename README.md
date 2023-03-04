@@ -11,7 +11,11 @@ If the Az powershell module isnt installed, it will be and will be imported.
 
 If not connected to azure, script will prompt you to sign in to whichever tenant you have rights to deploy on.
 
-Deploys to "East US" Location by default. Can be changed by specifying "-location centralus", for example.
+It will ask you to specify a username and password for the admin user and will continue on from there:
+
+![image](https://user-images.githubusercontent.com/65114647/222897477-f8c35aa9-fbd0-4633-855c-bf645e259918.png)
+
+Deploys to "East US" Location by default. At this time "-location" can be specified on the command line but it wont find your network security group and the machine will not have the security rules applied.
 
 Image is selected with "-windows10" or "-server2022", with windows11 on the map.
 Alterantely, images can be specified using the "-image" flag and the image resource, but this is mmore for testing than a supported feature. It may take some fiddling to get this to work with a managed image or shared image but it's something in the works.
@@ -24,7 +28,15 @@ NSG allow rules are applied at the subnet level.
 
 VM is created into the VNet and subnet behind the NSG, using the admin username and password.
 
-RDP session will be initiated to the machine after it is finished deploying. 
+RDP session will be initiated to the machine after it is finished deploying.
+
+![image](https://user-images.githubusercontent.com/65114647/222898395-9bf55639-0b4e-49d4-8707-f678e0a1b0ca.png)
+
+Resources can be destroyed by pressing up arrow on your keyboard and changing -deploy to -destroy:
+
+![image](https://user-images.githubusercontent.com/65114647/222897627-9f6429a2-e274-4f3a-830b-f11e70123e0b.png)
+
+![image](https://user-images.githubusercontent.com/65114647/222898434-da5e7058-3e3d-4590-a1b6-dbe8738f8ef6.png)
 
 
 ### Deploy
