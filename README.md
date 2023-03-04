@@ -13,6 +13,9 @@ If not connected to azure, script will prompt you to sign in to whichever tenant
 
 Deploys to "East US" Location by default. Can be changed by specifying "-location centralus", for example.
 
+Image is selected with "-windows10" or "-server2022", with windows11 on the map.
+Alterantely, images can be specified using the "-image" flag and the image resource, but this is mmore for testing than a supported feature. It may take some fiddling to get this to work with a managed image or shared image but it's something in the works.
+
 Resource Group is created from the VMName, as well as the VNET, subnet and NSG.
 
 Powershell retrieves your current public IP address and uses this to create rules to allow all traffic from your location and deny rules for anything else.
@@ -22,9 +25,6 @@ NSG allow rules are applied at the subnet level.
 VM is created into the VNet and subnet behind the NSG, using the admin username and password.
 
 RDP session will be initiated to the machine after it is finished deploying. 
-
-
-
 
 
 ### Deploy
