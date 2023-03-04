@@ -65,5 +65,14 @@ Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2022 -destroy
 
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows10 -destroy
 ```
+
+Any previous deployment can be destroyed as well by running the script with "-destroy" and then specifying the VMName.
+
+```
+Set-ExecutionPolicy Bypass .\BlastBox.ps1 -destroy
+```
+
+The script will take the VMName and destroy resources created from it.
+
 ## NOTE: Running Destroy will deallocate the VM first, then ask if you want to delete, allowing you to pause and save a few dollars on compute cost if you aren't ready to delete yet.
 

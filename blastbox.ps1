@@ -11,6 +11,8 @@ param(
     [Parameter()]
     [switch]$server2022,
     [Parameter()]
+    [switch]$ubuntu,
+    [Parameter()]
     [switch]$Deploy,
     [Parameter()]
     [switch]$Destroy
@@ -35,8 +37,9 @@ $subnetName = -join("$VMName","-Subnet")
 
 $win10image = "MicrosoftWindowsDesktop:Windows-10:21h1-ent:latest"
 $win11image = "MicrosoftWindowsDesktop:Windows-11:latest"
-# $win11image = "MicrosoftWindowsDesktop:Windows-11"
-$server22 = 'Win2022Datacenter'
+$ubuntuimage = "Canonical:UbuntuServer:20.04-LTS:latest"
+$server22 = 'MicrosoftWindowsServer:WindowsServer:2022-Datacenter:latest'
+
 # if args contain either server or win10, image becomes that variable
 if ($server2022) {
     $image = $server22
@@ -46,6 +49,9 @@ elseif ($windows10) {
 }
 elseif ($windows11) {
     $image = $win11image
+}
+elseif ($ubuntu) {
+    $image = $ubuntuimage
 }
 else {
     Write-Error "Either -server2022 or -windows10 switch must be provided"
