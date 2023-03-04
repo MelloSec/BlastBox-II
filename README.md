@@ -36,7 +36,9 @@ Resources can be deallocated or destroyed by pressing up arrow on your keyboard 
 
 ![image](https://user-images.githubusercontent.com/65114647/222897627-9f6429a2-e274-4f3a-830b-f11e70123e0b.png)
 
-![image](https://user-images.githubusercontent.com/65114647/222898434-da5e7058-3e3d-4590-a1b6-dbe8738f8ef6.png)
+![image](https://user-images.githubusercontent.com/65114647/222899334-2393f630-6b95-4749-a4fa-ca6deb5f876d.png)
+
+![image](https://user-images.githubusercontent.com/65114647/222899413-299be5b1-e5db-45ea-b069-4134bfe0f9ae.png)
 
 
 ### Deploy
