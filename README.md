@@ -31,13 +31,14 @@ Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows10 -deploy
 # Server 2022:
 
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2022 -deploy
-
 ```
 
 # Destroy
 Use the destroy flag to deallocate and destroy the VM with it's associated Resources and Resource Group, including networking.
-
+```
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2022 -destroy
+
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows10 -destroy
 
-NOTE: Running Destroy will deallocate the VM first, then ask if you want to delete, allowing you to save your progress and a few dollars on compute cost
+# NOTE: Running Destroy will deallocate the VM first, then ask if you want to delete, allowing you to save your progress and a few dollars on compute cost
+```
