@@ -32,6 +32,7 @@ Refreshenv
 choco install -y tabby
 choco install -y git
 choco install -y poshgit
+choco install -y vscode
 choco install sysinternals -y
 
 Set-ExecutionPolicy -Bypass
