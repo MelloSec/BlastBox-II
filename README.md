@@ -30,8 +30,6 @@ VM is created into the VNet and subnet behind the NSG, using the admin username 
 
 RDP session will be initiated to the machine after it is finished deploying.
 
-![image](https://user-images.githubusercontent.com/65114647/222898395-9bf55639-0b4e-49d4-8707-f678e0a1b0ca.png)
-
 Resources can be deallocated or destroyed by pressing up arrow on your keyboard and changing -deploy to -destroy:
 
 ![image](https://user-images.githubusercontent.com/65114647/222897627-9f6429a2-e274-4f3a-830b-f11e70123e0b.png)
