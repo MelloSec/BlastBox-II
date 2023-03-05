@@ -12,8 +12,8 @@ param(
     [switch]$windows11,
     [Parameter()]
     [switch]$server2022,
-    [Parameter()]
-    [switch]$server2008,
+    # [Parameter()]
+    # [switch]$server2008,
     [Parameter()]
     [switch]$server2012,
     [Parameter()]
@@ -31,6 +31,42 @@ param(
     [Parameter()]
     [switch]$Destroy
 )
+function Show-Help {
+    Write-Output "Usage: ./blastbox.ps1 [-windows7] (Optional: -Location <location>) [-Deploy]"
+    Write-Output "Example: ./blastbox.ps1 -windows7 -Deploy" 
+    Write-Output "Example: ./blastbox.ps1 -windows7 -Destroy"
+    Write-Output "./blastbox.ps1 -help"
+    Write-Output ""
+    Write-Output "Parameters:"
+    Write-Output "  -Image       : The name of the image to use."
+    Write-Output "                 Supported images:"
+    Write-Output "                 Windows: -windows7, -windows10, -windows11, -office"
+    Write-Output "                 Server:  -server2012, -server2016, -server2019, -server2022"
+    Write-Output "                 Linux: -ubuntu -kali"
+    Write-Output "  -Location    : The Azure region to deploy to. Default is East US."
+    Write-Output "  -windows7    : Use the Windows 7 image."
+    Write-Output "  -windows10   : Use the Windows 10 image."
+    Write-Output "  -windows11   : Use the Windows 11 image."
+    Write-Output "  -server2022  : Use the Windows Server 2022 image."
+    Write-Output "  -server2012  : Use the Windows Server 2012 image."
+    Write-Output "  -server2016  : Use the Windows Server 2016 image."
+    Write-Output "  -server2019  : Use the Windows Server 2019 image."
+    Write-Output "  -office      : Use the Office 365 image."
+    Write-Output "  -ubuntu      : Use the Ubuntu Server image."
+    Write-Output "  -kali        : Use the Kali Linux image."
+    Write-Output "  -Deploy      : Deploy a new VM."
+    Write-Output "  -Destroy     : Destroy an existing VM."
+    Write-Output "  -help        : Show this help menu."
+    Write-Output ""
+    Write-Output "Example: ./blastbox.ps1 -windows10 -Deploy"
+}
+
+
+if ($help) {
+    Show-Help
+    exit
+}
+
 
 
 $VMName = Read-Host "Enter a name for the VM and its resources"
