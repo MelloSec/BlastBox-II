@@ -51,7 +51,7 @@ function Show-Help {
     Write-Output "  -server2012  : Use the Windows Server 2012 image."
     Write-Output "  -server2016  : Use the Windows Server 2016 image."
     Write-Output "  -server2019  : Use the Windows Server 2019 image."
-    Write-Output "  -office      : Use the Office 365 image."
+    Write-Output "  -office      : Use the Office 365 on Windows 11 image."
     Write-Output "  -ubuntu      : Use the Ubuntu Server image."
     Write-Output "  -kali        : Use the Kali Linux image."
     Write-Output "  -Deploy      : Deploy a new VM."

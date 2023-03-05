@@ -9,7 +9,7 @@ Supported images:
 
 Windows 7, 10, 11, 11 with Office Pre-installed
 
-Windows Server 2008R2, 2012R2, 2016, 2019 and 2022
+Windows Server 2012R2, 2016, 2019 and 2022
 
 Ubuntu Server 18.04
 
@@ -84,9 +84,7 @@ Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2016 -deploy
 
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2012 -deploy
 
-# Server 2008R2
 
-Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2008 -deploy
 
 
 ```
