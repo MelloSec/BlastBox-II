@@ -3,7 +3,15 @@
 ## Private test machines on the fly. Run scripts, click links, go nuts.
 
 ### Overview
-Provide a Name, -windows10 or -server2022, admin username (and optionally password) and whether to -deploy or -destroy.
+Provide a VM name and an image with an admin credentials and whether to -deploy or -destroy.
+
+Supported images:
+
+Windows 7, 10, 11, 11 with Office Pre-installed
+
+Windows Server 2008R2, 2012R2, 2016, 2019 and 2022
+
+Ubuntu Server 18.04
 
 If the legacy AzureRM module is installed, it will be removed as it cannot exist side-by-side with the new Az module.
 
@@ -28,7 +36,7 @@ NSG allow rules are applied at the subnet level.
 
 VM is created into the VNet and subnet behind the NSG, using the admin username and password.
 
-RDP session will be initiated to the machine after it is finished deploying.
+RDP session will be initiated to the machine after it is finished deploying, unless Ubuntu is selected. SSH in to the IP provided.
 
 Resources can be deallocated or destroyed by pressing up arrow on your keyboard and changing -deploy to -destroy:
 
@@ -43,14 +51,43 @@ Resources can be deallocated or destroyed by pressing up arrow on your keyboard 
 Open powershell.exe, navigate to the folder and run:
 
 ```
+
+# Windows11 with Office
+
+Set-ExecutionPolicy Bypass .\BlastBox.ps1 -office -deploy
+
+# Windows 11
+ 
+Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows11 -deploy
+
 # Windows 10:
 
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows10 -deploy
 
+# Windows 7
+
+Set-ExecutionPolicy Bypass .\BlastBox.ps1 -windows7 -deploy
  
 # Server 2022:
 
 Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2022 -deploy
+
+# Server 2019
+
+Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2019 -deploy
+
+# Server 2016
+
+Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2016 -deploy
+
+# Server 2012R2
+
+Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2012 -deploy
+
+# Server 2008R2
+
+Set-ExecutionPolicy Bypass .\BlastBox.ps1 -server2008 -deploy
+
 
 ```
 

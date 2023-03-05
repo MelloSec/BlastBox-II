@@ -5,13 +5,27 @@ param(
     [Parameter()]
     [string]$Location = "East US",
     [Parameter()]
+    [switch]$windows7,
+    [Parameter()]
     [switch]$windows10,
     [Parameter()]
     [switch]$windows11,
     [Parameter()]
     [switch]$server2022,
     [Parameter()]
+    [switch]$server2008,
+    [Parameter()]
+    [switch]$server2012,
+    [Parameter()]
+    [switch]$server2016,
+    [Parameter()]
+    [switch]$server2019,
+    [Parameter()]
+    [switch]$office,
+    [Parameter()]
     [switch]$ubuntu,
+    [Parameter()]
+    [switch]$kali,
     [Parameter()]
     [switch]$Deploy,
     [Parameter()]
@@ -26,23 +40,53 @@ $resourceGroupName = -join("$VMName","-RG")
 $myip = Invoke-WebRequest 'http://ifconfig.me/ip' -UseBasicParsing
 $myip = $myip.Content
 $VNETName = -join("$VMName","-VNET")
-# $Username = Read-Host "Enter admin username for VM"
-# $Password = Read-Host "Enter password for VM" -AsSecureString
-
-
 $pubName = -join("$VMName","-IP")
 $nsgName = -join("$VMName","-NSG")
 $subnetName = -join("$VMName","-Subnet")
 
 
+
 $win10image = "MicrosoftWindowsDesktop:Windows-10:21h1-ent:latest"
-$win11image = "MicrosoftWindowsDesktop:Windows-11:latest"
-$ubuntuimage = "Canonical:UbuntuServer:20.04-LTS:latest"
-$server22 = 'MicrosoftWindowsServer:WindowsServer:2022-Datacenter:latest'
+$win11image = "MicrosoftWindowsDesktop:Windows-11:win11-21h2-ent:latest"
+$win7image = "MicrosoftWindowsDesktop:Windows-7:win7-enterprise:latest"
+$officeimage = "MicrosoftWindowsDesktop:office-365:win10-21h2-avd-m365:latest"
+$server22 = "MicrosoftWindowsServer:WindowsServer:2022-Datacenter:latest"
+$server19 = "MicrosoftWindowsServer:WindowsServer:2019-Datacenter:latest"
+$server16 = "MicrosoftWindowsServer:WindowsServer:2016-Datacenter:latest"
+$server2008R2 = 'MicrosoftWindowsServer:WindowsServer:2008-R2-SP1:latest'
+$server2012R2 = 'MicrosoftWindowsServer:WindowsServer:2012-R2-Datacenter:latest'
+$ubuntuimage = "Canonical:UbuntuServer:18.04-LTS:latest"
+$kaliimage = "kali-linux:kali:kali-20224:latest"
+
+# Agree to Plan terms for Kali
+$kalipub = 'kali-linux'
+$kaliplan = 'kali'
+$sku = "kali-20224"
+$agreementTerms=Get-AzMarketplaceterms -Publisher $kalipub -Product $kaliplan -Name $sku 
+Set-AzMarketplaceTerms -Publisher $kalipub -Product $kaliplan -Name $sku  -Terms $agreementTerms -Accept
+
 
 # if args contain either server or win10, image becomes that variable
 if ($server2022) {
     $image = $server22
+}
+elseif ($server2008) {
+    $image = $server2008R2
+}
+elseif ($server2012) {
+    $image = $server2012R2
+}
+elseif ($server2016) {
+    $image = $server16
+}
+elseif ($server2019) {
+    $image = $server19
+}
+elseif ($windows7) {
+    $image = $win7image
+}
+elseif ($office) {
+    $image = $officeimage
 }
 elseif ($windows10) {
     $image = $win10image
@@ -53,9 +97,16 @@ elseif ($windows11) {
 elseif ($ubuntu) {
     $image = $ubuntuimage
 }
+elseif ($kali) {
+    $image = $kaliimage
+}
 else {
-    Write-Error "Either -server2022 or -windows10 switch must be provided"
-    return
+    Write-Error "You must provide an image and -deploy or -destroy switch.
+    List of supported images:
+    Windows: -windows7, -windows10, -windows11, -office
+    Server:  -server2012, -server2016, -server2019, -server2022
+    Linux: -ubuntu -kali
+    "
 }
 
 # Get connected to Azure
@@ -206,7 +257,8 @@ if ($Deploy) {
     $publicIpAddress = Get-AzPublicIpAddress -Name $pubName -ResourceGroupName $resourceGroupName
     $ip = $publicIpAddress.IpAddress.ToString()
     $fqdn = $publicIpAddress.DnsSettings.Fqdn
-    Write-Output "Your VM's connection information: $ip $fqdn"
+    Write-Output "Your VM's connection information:"
+    Write-Output "$ip $fqdn"
 
     mstsc.exe /public /admin /v:$ip 
     
@@ -248,7 +300,9 @@ elseif ($Destroy) {
     function Delete-VM
         {
             $VM = Get-AzVM -Name $VMName -ResourceGroupName $resourceGroupName
+            if($VM){
             Write-Output "VM found: $($VM.Name)"
+            }
             Write-Output "Deallocating VM..."
             $NIC = Get-AzNetworkInterface -ResourceId $VM.NetworkProfile.NetworkInterfaces[0].Id
 
