@@ -49,3 +49,5 @@ $kaliimage = 'kali'
 $sku = "kali-20224"
 $agreementTerms=Get-AzMarketplaceterms -Publisher $kali -Product $kaliimage -Name $sku 
 Set-AzMarketplaceTerms -Publisher $kali -Product $kaliimage -Name $sku  -Terms $agreementTerms -Accept
+
+$vmConfig = Set-AzVMPlan -VM  -Publisher $publisherName -Product $productName -Name $planName
