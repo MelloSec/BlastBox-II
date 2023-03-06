@@ -296,7 +296,9 @@ if ($Deploy) {
     Write-Output "Your VM's connection information:"
     Write-Output "$ip $fqdn"
 
-    mstsc.exe /public /admin /v:$ip 
+    mstsc.exe /public /admin /v:$ip
+    Set-AzVMRunCommand -ResourceGroupName  $resourceGroupName -VMName $VMName -Location $location -RunCommandName "ChocoInstall" -SourceScript "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')" 
+    Set-AzVMRunCommand -ResourceGroupName  $resourceGroupName -VMName $VMName -Location $location -RunCommandName "ChocoPackages" -SourceScript "choco inst -y vscode sysinternals git poshgit firefox zerotier-one"
     
 }
 
