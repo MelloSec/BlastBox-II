@@ -94,12 +94,7 @@ $server2012R2 = 'MicrosoftWindowsServer:WindowsServer:2012-R2-Datacenter:latest'
 $ubuntuimage = "Canonical:UbuntuServer:18.04-LTS:latest"
 $kaliimage = "kali-linux:kali:kali-20224:latest"
 
-# Agree to Plan terms for Kali
-$kalipub = 'kali-linux'
-$kaliplan = 'kali'
-$sku = "kali-20224"
-$agreementTerms=Get-AzMarketplaceterms -Publisher $kalipub -Product $kaliplan -Name $sku 
-Set-AzMarketplaceTerms -Publisher $kalipub -Product $kaliplan -Name $sku  -Terms $agreementTerms -Accept
+
 
 
 # if args contain either server or win10, image becomes that variable
@@ -135,6 +130,12 @@ elseif ($ubuntu) {
 }
 elseif ($kali) {
     $image = $kaliimage
+    # Agree to Plan terms for Kali
+    $kalipub = 'kali-linux'
+    $kaliplan = 'kali'
+    $sku = "kali-20224"
+    $agreementTerms=Get-AzMarketplaceterms -Publisher $kalipub -Product $kaliplan -Name $sku 
+    Set-AzMarketplaceTerms -Publisher $kalipub -Product $kaliplan -Name $sku  -Terms $agreementTerms -Accept
 }
 else {
     Write-Error "You must provide an image and -deploy or -destroy switch.
@@ -187,23 +188,6 @@ if ($Deploy) {
     $rg = Create-RG $resourceGroupName $location
 
     # Create Rules and NSG
-
-    # Allow Rules
-    # $rule1 = New-AzNetworkSecurityRuleConfig -Name rdp-rule -Description "Allow RDP" `
-    # -Access Allow -Protocol Tcp -Direction Inbound -Priority 300 -SourceAddressPrefix `
-    # $myip.ToString() -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 3389
-
-    # $rule2 = New-AzNetworkSecurityRuleConfig -Name web-rule -Description "Allow HTTP" `
-    # -Access Allow -Protocol Tcp -Direction Inbound -Priority 301 -SourceAddressPrefix `
-    # $myip.ToString() -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 80, 443
-
-    # $rule3 = New-AzNetworkSecurityRuleConfig -Name smb-rule -Description "Allow SMB" `
-    # -Access Allow -Protocol Tcp -Direction Inbound -Priority 302 -SourceAddressPrefix `
-    # $myip -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 139, 445
-
-        # $rule5 = New-AzNetworkSecurityRuleConfig -Name WinRM -Description "Allow incoming WinRM traffic" `
-    # -Access Allow -Protocol Tcp -Direction Inbound -Priority 304 -SourceAddressPrefix $myip `
-    # -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange 5985, 5986
 
     Write-Output "Your current IP is $myip. Creating TCP/UDP Allow rules from that IP and denying everything else."
     
@@ -296,7 +280,9 @@ if ($Deploy) {
     Write-Output "Your VM's connection information:"
     Write-Output "$ip $fqdn"
 
-    mstsc.exe /public /admin /v:$ip 
+    mstsc.exe /public /admin /v:$ip
+    
+    
     
 }
 
@@ -313,8 +299,6 @@ elseif ($Destroy) {
             [Parameter(Mandatory)]
             [Microsoft.Azure.Commands.Network.Models.PSVirtualNetwork]$VNet
         )
-    
-
     
         # Remove Public IP
         Write-Output "Removing Public IP..."
