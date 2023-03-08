@@ -1,0 +1,1 @@
+choco install git -y --params="'/GitAndUnixToolsOnPath /NoAutoCrlf'";choco install git -y --params="'/GitAndUnixToolsOnPath /NoAutoCrlf'" --install-arguments="'/DIR=C:\git'"

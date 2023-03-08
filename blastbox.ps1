@@ -95,11 +95,11 @@ $ubuntuimage = "Canonical:UbuntuServer:18.04-LTS:latest"
 $kaliimage = "kali-linux:kali:kali-20224:latest"
 
 # Agree to Plan terms for Kali
-$kalipub = 'kali-linux'
-$kaliplan = 'kali'
-$sku = "kali-20224"
-$agreementTerms=Get-AzMarketplaceterms -Publisher $kalipub -Product $kaliplan -Name $sku 
-Set-AzMarketplaceTerms -Publisher $kalipub -Product $kaliplan -Name $sku  -Terms $agreementTerms -Accept
+# $kalipub = 'kali-linux'
+# $kaliplan = 'kali'
+# $sku = "kali-20224"
+# $agreementTerms=Get-AzMarketplaceterms -Publisher $kalipub -Product $kaliplan -Name $sku 
+# Set-AzMarketplaceTerms -Publisher $kalipub -Product $kaliplan -Name $sku  -Terms $agreementTerms -Accept
 
 
 # if args contain either server or win10, image becomes that variable
@@ -297,10 +297,12 @@ if ($Deploy) {
     Write-Output "$ip $fqdn"
 
     mstsc.exe /public /admin /v:$ip
-    Set-AzVMRunCommand -ResourceGroupName  $resourceGroupName -VMName $VMName -Location $location -RunCommandName "ChocoInstall" -SourceScript "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')" 
-    Set-AzVMRunCommand -ResourceGroupName  $resourceGroupName -VMName $VMName -Location $location -RunCommandName "ChocoPackages" -SourceScript "choco inst -y vscode sysinternals git poshgit firefox zerotier-one"
+
     
 }
+
+# Set-AzVMRunCommand -ResourceGroupName  $resourceGroupName -VMName $VMName -Location $location -RunCommandName "ChocoInstall" -SourceScript "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')" 
+# Set-AzVMRunCommand -ResourceGroupName  $resourceGroupName -VMName $VMName -Location $location -RunCommandName "ChocoPackages" -SourceScript "choco inst -y vscode sysinternals git poshgit firefox zerotier-one"
 
 elseif ($Destroy) {
     $resourceGroupName = -join("$VMName","-RG")
