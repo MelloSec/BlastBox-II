@@ -1,0 +1,5 @@
+az vm extension set \
+    --publisher Microsoft.Azure.ActiveDirectory \
+        --name AADLoginForWindows \
+	    --resource-group $myResourceGroup \
+	        --vm-name $VMName
