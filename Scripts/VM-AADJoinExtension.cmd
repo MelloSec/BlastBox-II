@@ -1,9 +1,10 @@
-location="eastus"
+#!/bin/bash
+
 myResourceGroup="blastBox"
 VMName="blastbox"
-vmFree = "Standard_B1s" # for a cheap size
-vmDefault = "Standard_D2_v3" # for a free size
-username - "mellonaut"
+vmFree="Standard_B1s" # for a cheap size
+vmDefault="Standard_D2_v3" # for a free size
+username="mellonaut"
 
 az group create --name $myResourceGroup --location $location
 
@@ -13,7 +14,7 @@ az vm create \
     --image Win2019Datacenter \
     --size $vmFree \
     --assign-identity \
-    --admin-username $user 
+    --admin-username $username
 
 az vm extension set \
     --publisher Microsoft.Azure.ActiveDirectory \
