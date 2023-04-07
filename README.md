@@ -25,7 +25,7 @@ It will ask you to specify a username and password for the admin user and will c
 
 Deploys to "East US" Location by default. At this time "-location" can be specified on the command line but it wont find your network security group and the machine will not have the security rules applied.
 
-Image is selected with "-windows10" or "-server2022", with windows11 on the map.
+Image is selected with "-windows10" or "-server2022", etc
 Alterantely, images can be specified using the "-image" flag and the image resource, but this is mmore for testing than a supported feature. It may take some fiddling to get this to work with a managed image or shared image but it's something in the works.
 
 Resource Group is created from the VMName, as well as the VNET, subnet and NSG.
